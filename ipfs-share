@@ -1,37 +1,47 @@
 #!/usr/bin/env python3
-# https://github.com/ipfs/go-ipfs/blob/master/docs/experimental-features.md#ipfs-filestore
-# USAGE:
-#   ipfs-share http://path.to/123.png
-#   ipfs-share 123.png
 
-from subprocess import run
+from subprocess import run, Popen, PIPE
 from sys import argv
-from urllib.request import urlopen
-from uuid import uuid1 as uuid
-from os import remove, path
+from os import path
 from urllib.parse import quote
 
-add_cmd = 'ipfs add --quiet --recursive --nocopy --raw-leaves --fscache --wrap-with-directory'
+add_cmd = 'ipfs add --nocopy --raw-leaves --fscache --wrap-with-directory --recursive'
 
 urls = [
+    'http://127.0.0.1:8080/ipfs',
     'https://ipfs.io/ipfs',
-    'http://[301:4541:2f84:1188:216:3eff:fed5:a2df]/ipfs',
 ]
+
+if len(argv) == 1:
+    print(
+        '''You need enable these features first:
+   https://github.com/ipfs/go-ipfs/blob/master/docs/experimental-features.md#ipfs-filestore
+   https://github.com/ipfs/go-ipfs/blob/master/docs/experimental-features.md#ipfs-urlstore
+
+USAGE:
+   ipfs-share http://path.to/123.png
+   ipfs-share 123.png
+\b'''
+    )
+
+
+def run_cmd(cmd):
+    p = Popen(cmd, shell=True, text=True, stdout=PIPE)
+    return p.communicate(timeout=None)
+
 
 if len(argv) > 1:
     file_name = path.basename(argv[1])
     file_name_quote = quote(file_name)
 
-    ID = run(f"{add_cmd} '{argv[1]}'", shell=True, capture_output=True, text=True).stdout.split()
+    out, err = run_cmd(f"{add_cmd} '{argv[1]}'")
+
+    out_split = out.split()
 
     for i, v in enumerate(urls):
-        urls[i] = f'{v}/{ID[1]}/{file_name_quote}'
+        urls[i] = f'{v}/{out_split[-1]}/{file_name_quote}'
 
-    urls_str = '\n'.join(urls)
+    print(out)
+    print('\n'.join(urls))
 
-    print(f'{ID[0]} {file_name}\n')
-    print(urls_str)
-
-    run(f"wl-copy '{ID[0]} {file_name}\n\n{urls_str}'", shell=True)
-
-
+    run(f"wl-copy '{urls[-1]}'", shell=True)
