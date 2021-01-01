@@ -5,7 +5,8 @@ from sys import argv
 from os import path
 from urllib.parse import quote
 
-add_cmd = 'ipfs add --nocopy --raw-leaves --fscache --wrap-with-directory --recursive'
+add_cmd = 'ipfs add --cid-version=1 --nocopy --raw-leaves --fscache --wrap-with-directory --recursive'
+
 
 urls = [
     'http://127.0.0.1:8080/ipfs',
@@ -14,13 +15,10 @@ urls = [
 
 if len(argv) == 1:
     print(
-        '''You need enable these features first:
-   https://github.com/ipfs/go-ipfs/blob/master/docs/experimental-features.md#ipfs-filestore
-   https://github.com/ipfs/go-ipfs/blob/master/docs/experimental-features.md#ipfs-urlstore
-
-USAGE:
-   ipfs-share http://path.to/123.png
-   ipfs-share 123.png
+        '''USAGE:
+   ipfs-share file.ext
+   ipfs-share path/to/dir
+   ipfs-share http://path.to/file.ext
 \b'''
     )
 
