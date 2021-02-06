@@ -5,6 +5,7 @@ from sys import argv
 from os import path
 from urllib.parse import quote
 
+
 add_cmd = 'ipfs add --cid-version=1 --nocopy --raw-leaves --fscache --wrap-with-directory --recursive'
 
 
@@ -35,11 +36,11 @@ if len(argv) > 1:
     out, err = run_cmd(f"{add_cmd} '{argv[1]}'")
 
     out_split = out.split()
-
     for i, v in enumerate(urls):
         urls[i] = f'{v}/{out_split[-1]}/{file_name_quote}'
 
     print(out)
-    print('\n'.join(urls))
+    print(f'http://{out_split[-1]}.ipfs.localhost:8080/{file_name_quote}\n')
+    print('\n\n'.join(urls))
 
     run(f"wl-copy '{urls[-1]}'", shell=True)
